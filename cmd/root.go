@@ -26,7 +26,7 @@ to quickly create a Cobra application.`,
 func Execute() {
 	err := RootCmd.Execute()
 	if err != nil {
-		slog.Error("Error: ", err.Error())
+		slog.Error("can't run command", "error", err)
 		os.Exit(1)
 	}
 }
