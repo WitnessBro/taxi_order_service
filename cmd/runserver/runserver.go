@@ -13,8 +13,7 @@ var Cmd = &cobra.Command{
 		Несколько строк текста.
 		Ага, третья строка`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := RunServer
-		if err(); err != nil {
+		if RunServer(); RunServer != nil {
 			fmt.Println("Error on server starts")
 		}
 		return nil
