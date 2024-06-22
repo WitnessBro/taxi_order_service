@@ -13,20 +13,18 @@ var Cmd = &cobra.Command{
 		Несколько строк текста.
 		Ага, третья строка`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		//TODO не совсем понимаю что тут надо сделать пока
 		err := RunServer
-		if err != nil {
-			err()
-			fmt.Println("runserver called")
+		if err(); err != nil {
+			fmt.Println("Error on server starts")
 		}
 		return nil
 	},
 }
 
-func _helloWorldHandler(w http.ResponseWriter, _ *http.Request) {
+func helloWorldHandler(w http.ResponseWriter, _ *http.Request) {
 	fmt.Fprintf(w, "Hello, World!")
 }
 func RunServer() {
-	http.HandleFunc("/", _helloWorldHandler)
+	http.HandleFunc("/", helloWorldHandler)
 	http.ListenAndServe(":8080", nil)
 }
