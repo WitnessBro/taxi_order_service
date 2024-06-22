@@ -25,5 +25,5 @@ func helloWorldHandler(w http.ResponseWriter, _ *http.Request) {
 }
 func RunServer() {
 	http.HandleFunc("/", helloWorldHandler)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe("localhost:8080", nil)
 }
