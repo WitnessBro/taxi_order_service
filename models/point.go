@@ -6,10 +6,10 @@ func NewPoint(lat, lon float32) Point {
 	return Point{lat, lon}
 }
 
-func getLon(p Point) float32 {
+func (p Point) GetLon() float32 {
 	return p[1]
 }
 
-func getLat(p Point) float32 {
+func (p Point) GetLat() float32 {
 	return p[0]
 }

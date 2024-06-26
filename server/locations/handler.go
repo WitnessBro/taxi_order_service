@@ -3,6 +3,7 @@ package locations
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"taxi_order_service/models"
 )
@@ -27,12 +28,13 @@ func (h *Handler) SaveLocation(w http.ResponseWriter, r *http.Request) {
 	var body location
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		fmt.Errorf("bad request: %w", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	point := models.NewPoint(body.Latitude, body.Longitude)
 	if err := h.LocationService.StoreLocation(context.Background(), point); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Errorf("internal server error: %w", err)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
