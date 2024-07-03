@@ -38,7 +38,8 @@ func (h *Handler) SaveLocation(w http.ResponseWriter, r *http.Request) {
 	//TODO прокинуть юзерайди в StoreLocation
 	userId, err := strconv.Atoi(r.Header.Get("X-User-Id"))
 	if err != nil {
-		fmt.Errorf("no user: %w", err)
+		fmt.Errorf("user not authorized: %w", err)
+		http.Error(w, "user not authorized", http.StatusUnauthorized)
 	}
 	if err := h.LocationService.StoreLocation(r.Context(), point, userId); err != nil {
 		fmt.Errorf("internal server error: %w", err)
