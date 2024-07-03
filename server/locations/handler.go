@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"taxi_order_service/models"
 )
 
 type Handler struct {
-	LocationService iLocationService
+	LocationService ILocationService
 }
 
 type location struct {
@@ -17,10 +18,11 @@ type location struct {
 	Longitude float32 `json:"longitude"`
 }
 
-type iLocationService interface {
+type ILocationService interface {
 	StoreLocation(
 		ctx context.Context,
 		point models.Point,
+		userId int,
 	) (err error)
 }
 
@@ -33,8 +35,15 @@ func (h *Handler) SaveLocation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	point := models.NewPoint(body.Latitude, body.Longitude)
-	if err := h.LocationService.StoreLocation(context.Background(), point); err != nil {
+	//TODO прокинуть юзерайди в StoreLocation
+	userId, err := strconv.Atoi(r.Header.Get("X-User-Id"))
+	if err != nil {
+		fmt.Errorf("user not authorized: %w", err)
+		http.Error(w, "user not authorized", http.StatusUnauthorized)
+	}
+	if err := h.LocationService.StoreLocation(r.Context(), point, userId); err != nil {
 		fmt.Errorf("internal server error: %w", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
