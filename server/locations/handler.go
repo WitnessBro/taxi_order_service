@@ -40,7 +40,7 @@ func (h *Handler) SaveLocation(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Errorf("no user: %w", err)
 	}
-	if err := h.LocationService.StoreLocation(context.Background(), point, userId); err != nil {
+	if err := h.LocationService.StoreLocation(r.Context(), point, userId); err != nil {
 		fmt.Errorf("internal server error: %w", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return

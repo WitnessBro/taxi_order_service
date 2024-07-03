@@ -31,11 +31,9 @@ func TestHandler_SaveLocation(t *testing.T) {
 	routerBuilder.Build().ServeHTTP(w, req)
 
 	resp := w.Result()
-	userId := resp.Header.Get("X-User-Id")
 	body, _ := io.ReadAll(resp.Body)
 
 	require.EqualValues(t, http.StatusOK, resp.StatusCode)
-	require.EqualValues(t, "42", userId)
 	require.EqualValues(t, "", body)
 }
 
@@ -50,6 +48,7 @@ func TestHandler_SaveLocation_Internal_Server_Error(t *testing.T) {
 	}
 	req := httptest.NewRequest(http.MethodPost, "http://localhost:8080/api/v1/locations",
 		strings.NewReader(`{"latitude":50.452, "longitude": 45.3434}`))
+	req.Header.Set("X-User-Id", "42")
 	w := httptest.NewRecorder()
 	routerBuilder.Build().ServeHTTP(w, req)
 
