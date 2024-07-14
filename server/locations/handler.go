@@ -7,10 +7,12 @@ import (
 	"net/http"
 	"strconv"
 	"taxi_order_service/models"
+	"taxi_order_service/services"
 )
 
 type Handler struct {
 	LocationService ILocationService
+	KafkaProducer   *services.KafkaProducer
 }
 
 type location struct {
@@ -35,7 +37,6 @@ func (h *Handler) SaveLocation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	point := models.NewPoint(body.Latitude, body.Longitude)
-	//TODO прокинуть юзерайди в StoreLocation
 	userId, err := strconv.Atoi(r.Header.Get("X-User-Id"))
 	if err != nil {
 		fmt.Errorf("user not authorized: %w", err)
@@ -46,5 +47,12 @@ func (h *Handler) SaveLocation(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
+	message := fmt.Sprintf("%f,%f", body.Latitude, body.Longitude)
+	if err := h.KafkaProducer.WriteMessage(r.Context(), []byte(strconv.Itoa(userId)), []byte(message)); err != nil {
+		fmt.Errorf("could not write message to Kafka: %w", err)
+		http.Error(w, "could not write message to Kafka", http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
