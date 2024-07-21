@@ -31,7 +31,7 @@ func (p *KafkaProducer) WriteMessage(ctx context.Context, key, value []byte) err
 
 	err := p.writer.WriteMessages(ctx, msg)
 	if err != nil {
-		return fmt.Errorf("could not write message to Kafka: %w", err)
+		fmt.Errorf("could not write message to Kafka: %w", err)
 	}
 	return nil
 }

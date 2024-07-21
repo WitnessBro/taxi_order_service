@@ -7,12 +7,10 @@ import (
 	"net/http"
 	"strconv"
 	"taxi_order_service/models"
-	"taxi_order_service/services"
 )
 
 type Handler struct {
 	LocationService ILocationService
-	KafkaProducer   *services.KafkaProducer
 }
 
 type location struct {
@@ -45,12 +43,6 @@ func (h *Handler) SaveLocation(w http.ResponseWriter, r *http.Request) {
 	if err := h.LocationService.StoreLocation(r.Context(), point, userId); err != nil {
 		fmt.Errorf("internal server error: %w", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-	message := fmt.Sprintf("%f,%f", body.Latitude, body.Longitude)
-	if err := h.KafkaProducer.WriteMessage(r.Context(), []byte(strconv.Itoa(userId)), []byte(message)); err != nil {
-		fmt.Errorf("could not write message to Kafka: %w", err)
-		http.Error(w, "could not write message to Kafka", http.StatusInternalServerError)
 		return
 	}
 
