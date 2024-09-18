@@ -35,7 +35,6 @@ func (h *Handler) SaveLocation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	point := models.NewPoint(body.Latitude, body.Longitude)
-	//TODO прокинуть юзерайди в StoreLocation
 	userId, err := strconv.Atoi(r.Header.Get("X-User-Id"))
 	if err != nil {
 		fmt.Errorf("user not authorized: %w", err)
@@ -46,5 +45,6 @@ func (h *Handler) SaveLocation(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
+
 	w.WriteHeader(http.StatusOK)
 }
