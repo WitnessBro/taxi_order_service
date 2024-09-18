@@ -5,6 +5,9 @@ import (
 	"github.com/spf13/cobra"
 	"net/http"
 	"taxi_order_service/config"
+	"taxi_order_service/server"
+	"taxi_order_service/server/locations"
+	"taxi_order_service/services"
 )
 
 var Cmd = &cobra.Command{
@@ -18,19 +21,23 @@ var Cmd = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("can’t read config: %w", err)
 		}
-		if err := RunServer(conf); err != nil {
+		locationService := services.NewLocationService([]string{"192.168.1.8:9092"}, "points")
+		if err := RunServer(conf, locationService); err != nil {
 			return fmt.Errorf("can’t run server: %w", err)
 		}
 		return nil
 	},
 }
 
-func helloWorldHandler(w http.ResponseWriter, _ *http.Request) {
-	fmt.Fprintf(w, "Hello, World!")
-}
-func RunServer(config *config.Config) error {
-	http.HandleFunc("/", helloWorldHandler)
-	if err := http.ListenAndServe(config.Address, nil); err != nil {
+func RunServer(config *config.Config, locationService *services.LocationService) error {
+	locationHandler := locations.Handler{
+		LocationService: locationService,
+	}
+	routerBuilder := server.RouterBuilder{
+		LocationHandler: &locationHandler,
+	}
+	handler := routerBuilder.Build()
+	if err := http.ListenAndServe(config.Address, handler); err != nil {
 		return fmt.Errorf("can't listen server on address %s: %w", config.Address, err)
 	}
 	return nil
